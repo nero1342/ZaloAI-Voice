@@ -4,7 +4,7 @@ seed: 42
 model:
     name: BaselineClassifier
     args:
-        nclasses: 42
+        nclasses: 400
         extractor_cfg:
             name: EfficientNetExtractor
             args:
@@ -36,28 +36,28 @@ scheduler:
 
 dataset:
     train:
-        name: VoiceFolderDataset
+        name: VoiceImageDataset
         args:
-            img_dir: ./../data
+            csv: ./../train_train.csv
             # ... more args
         loader:
             name: DataLoader
             args:
                 shuffle: True
-                batch_size: 16
+                batch_size: 24
     
     val:
-        name: VoiceFolderDataset
+        name: VoiceImageDataset
         args:
-            img_dir: ./../data
+            csv: ./../train_val.csv
             # ... more args
         loader:
             name: DataLoader
             args:
-                shuffle: True
-                batch_size: 16
+                shuffle: False
+                batch_size: 24
         
 trainer:
-    nepochs: 10
+    nepochs: 100
     val_step: 1
     log_step: 1

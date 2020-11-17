@@ -1,1 +1,1 @@
-from .voice_npy_folder import *
+from .voice_img import *
