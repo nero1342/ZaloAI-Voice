@@ -1,0 +1,63 @@
+id: baseline
+pretrained: None
+seed: 42
+model:
+    name: BaselineClassifier
+    args:
+        nclasses: 42
+        extractor_cfg:
+            name: EfficientNetExtractor
+            args:
+                version: 0
+
+optimizer:
+    name: Adam
+    args:
+        # <argument keyword>: <argument value>
+        # ... more args
+loss:
+    name: CrossEntropyLoss
+    args:
+        #<argument keyword>: <argument value>
+        # ... more args
+metric:
+    - name: Accuracy
+      args:
+          #<argument keyword>: <argument value>
+          # ... more args
+    # ... more metrics
+scheduler:
+    name: ReduceLROnPlateau
+    args:
+        mode: min
+        factor: 0.5
+        patience: 5
+        verbose: True
+
+dataset:
+    train:
+        name: VoiceFolderDataset
+        args:
+            img_dir: ./../data
+            # ... more args
+        loader:
+            name: DataLoader
+            args:
+                shuffle: True
+                batch_size: 16
+    
+    val:
+        name: VoiceFolderDataset
+        args:
+            img_dir: ./../data
+            # ... more args
+        loader:
+            name: DataLoader
+            args:
+                shuffle: True
+                batch_size: 16
+        
+trainer:
+    nepochs: 10
+    val_step: 1
+    log_step: 1

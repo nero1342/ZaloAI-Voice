@@ -27,13 +27,12 @@ def train(config):
 
     # Get pretrained model
     pretrained_path = config["pretrained"]
-
     pretrained = None
-    if (pretrained_path != None):
+    if (pretrained_path != "None"):
+        print("Hello")
         pretrained = torch.load(pretrained_path, map_location=dev_id)
         for item in ["model"]:
             config[item] = pretrained["config"][item]
-
     # 1: Load datasets
     train_dataloader, val_dataloader = \
         get_data(config['dataset'], config['seed'])
