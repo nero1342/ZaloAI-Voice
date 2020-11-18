@@ -4,24 +4,24 @@ import torch.nn.functional as F
 import torchvision.transforms as tvtf
 from tqdm import tqdm
 
-from datasets.voice_img import VoiceImageDataset
+from datasets.shopee import ShopeeDataset
+from metrics.classification.accuracy import Accuracy, ConfusionMatrix
 from utils.getter import get_instance
 from utils.device import move_to
 
 import argparse
-import csv
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', type=str,
-                    help='path to the csv ')
+                    help='path to the folder of query images')
+parser.add_argument('-c', type=str,
+                    help='path to the csv file')
 parser.add_argument('-w', type=str,
                     help='path to weight files')
 parser.add_argument('-g', type=int, default=None,
                     help='(single) GPU to use (default: None)')
 parser.add_argument('-b', type=int, default=64,
                     help='batch size (default: 64)')
-parser.add_argument('-o', type=str, default='test.csv',
-                    help='output file (default: test.csv)')
 args = parser.parse_args()
 
 # Device
@@ -36,25 +36,29 @@ model = get_instance(config['config']['model']).to(device)
 model.load_state_dict(config['model_state_dict'])
 
 # Load data
-tfs = tvtf.Compose([
-    tvtf.Resize((224, 224)),
-    tvtf.ToTensor(),
-    tvtf.Normalize(mean=[0.485, 0.456, 0.406],
-                   std=[0.229, 0.224, 0.225]),
-])
-
-dataset = VoiceImageDataset(args.d)
+dataset = ShopeeDataset(img_dir=args.d, csv_path=args.c, is_train=False)
 dataloader = DataLoader(dataset, batch_size=args.b)
 
+# Metrics
+metrics = {
+    'Accuracy': Accuracy(),
+    'ConfusionMatrix': ConfusionMatrix(nclasses=42),
+}
+
 with torch.no_grad():
-    out = [('filename', 'prediction', 'confidence')]
+    for m in metrics.values():
+        m.reset()
+
     model.eval()
-    for i, (imgs, fns) in enumerate(tqdm(dataloader)):
-        # print("Evaluating {}/{}".format(i, len(dataset)))
-        imgs = move_to(imgs, device)
-        logits = model(imgs)
-        probs = F.softmax(logits, dim=1)
-        confs, preds = torch.max(probs, dim=1)
-        out.extend([(fn, pred.item(), conf.item())
-                    for fn, pred, conf in zip(fns, preds, confs)])
-    csv.writer(open(args.o, 'w')).writerows(out)
+    progress_bar = tqdm(dataloader)
+    for i, (inp, lbl) in enumerate(progress_bar):
+        inp = move_to(inp, device)
+        lbl = move_to(lbl, device)
+        outs = model(inp)
+        for m in metrics.values():
+            value = m.calculate(outs, lbl)
+            m.update(value)
+
+    print('+ Evaluation result')
+    for m in metrics.values():
+        m.summary()
