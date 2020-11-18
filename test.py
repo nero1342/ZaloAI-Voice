@@ -55,6 +55,6 @@ with torch.no_grad():
         logits = model(imgs)
         probs = F.softmax(logits, dim=1)
         confs, preds = torch.max(probs, dim=1)
-        out.extend([(fn, pred.item(), conf.item())
+        out.extend([(str(fn), pred.item(), conf.item())
                     for fn, pred, conf in zip(fns, preds, confs)])
     csv.writer(open(args.o, 'w')).writerows(out)
