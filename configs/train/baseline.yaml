@@ -38,7 +38,7 @@ dataset:
     train:
         name: VoiceImageDataset
         args:
-            csv: ./../train_train.csv
+            csv: train_train.csv
             # ... more args
         loader:
             name: DataLoader
@@ -49,7 +49,7 @@ dataset:
     val:
         name: VoiceImageDataset
         args:
-            csv: ./../train_val.csv
+            csv: train_val.csv
             # ... more args
         loader:
             name: DataLoader
