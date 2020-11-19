@@ -79,7 +79,9 @@ class SiameseVoiceDataset(Dataset):
         return (img11, img22), target
 
     def __len__(self):
-        return len(self.train_labels)
+        if self.train:
+            return len(self.train_labels)
+        return len(self.test_pairs)
 
 
 if __name__ == "__main__":
