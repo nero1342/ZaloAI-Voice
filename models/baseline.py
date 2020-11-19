@@ -6,7 +6,7 @@ from utils import getter
 
 
 class BaselineClassifier(nn.Module):
-    def __init__(self, extractor_cfg, nclasses):
+    def __init__(self, nclasses, extractor_cfg):
         super().__init__()
         self.nclasses = nclasses
         self.extractor = getter.get_instance(extractor_cfg)
@@ -16,3 +16,16 @@ class BaselineClassifier(nn.Module):
     def forward(self, x):
         x = self.extractor(x)
         return self.classifier(x)
+
+class SiameseNet2(nn.Module):
+    def __init__(self, extractor_cfg):
+        super().__init__()
+        self.extractor = getter.get_instance(extractor_cfg)
+        self.feature_dim = self.extractor.feature_dim
+        #self.classifier = nn.Linear(self.feature_dim, self.nclasses)
+
+    def forward(self, x):
+        x1, x2 = x
+        output1 = self.extractor(x1)
+        output2 = self.extractor(x2)
+        return (output1, output2)

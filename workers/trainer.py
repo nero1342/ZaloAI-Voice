@@ -118,6 +118,7 @@ class Trainer():
                 outs = detach(outs)
                 lbl = detach(lbl)
                 for m in self.metric.values():
+                    #print("Answer ", outs, lbl)
                     value = m.calculate(outs, lbl)
                     m.update(value)
 

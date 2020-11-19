@@ -1,0 +1,68 @@
+id: baseline
+pretrained: None
+seed: 42
+model:
+    name: SiameseNet2
+    args:
+        #nclasses: 400
+        extractor_cfg:
+            name: EfficientNetExtractor
+            args:
+                version: 0
+
+optimizer:
+    name: Adam
+    args:
+        lr: 0.001
+        # <argument keyword>: <argument value>
+        # ... more args
+loss:
+    name: ContrastiveLoss
+    args:
+      #margin: 1.
+        #<argument keyword>: <argument value>
+        # ... more args
+metric:
+    - name: AccuracySiamese
+      args:
+        stu: 1
+          #<argument keyword>: <argument value>
+          # ... more args
+    # ... more metrics
+scheduler:
+    name: ReduceLROnPlateau
+    args:
+        mode: min
+        factor: 0.5
+        patience: 5
+        verbose: True
+
+dataset:
+    train:
+        name: SiameseVoiceDataset
+        args:
+            csv: ./../train_train.csv
+            train: True
+            # ... more args
+        loader:
+            name: DataLoader
+            args:
+                shuffle: True
+                batch_size: 2
+    
+    val:
+        name: SiameseVoiceDataset
+        args:
+            csv: ./../train_val.csv
+            train: False
+            # ... more args
+        loader:
+            name: DataLoader
+            args:
+                shuffle: False
+                batch_size: 2
+        
+trainer:
+    nepochs: 100
+    val_step: 1
+    log_step: 1
